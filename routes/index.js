@@ -3,9 +3,9 @@ const db = require('../db')
 
 const router = express.Router()
 
-router.get('/artists/songs/random', async (req, res) => {
+router.get('/artists/:artistId/songs/random', async (req, res) => {
     try {
-        const results = await db.random()
+        const results = await db.random(req.params.artistId)
         res.json(results)
     } catch (error) {
         console.log(error)
@@ -13,9 +13,9 @@ router.get('/artists/songs/random', async (req, res) => {
     }
 })
 
-router.get('/artists/songs/:id', async (req, res) => {
+router.get('/artists/:artistId/songs/:songId', async (req, res) => {
     try {
-        const results = await db.one(req.params.id)
+        const results = await db.one(req.params.artistId, req.params.songId)
         if (!results.length) {
             res.send('Song not found')
         } else {
@@ -33,9 +33,9 @@ router.get('/', (req, res) => {
 
 
 
-router.delete('/artists/songs/delete/:id', async (req, res) => {
+router.delete('/artists/:artistId/songs/delete/:songId', async (req, res) => {
     try {
-        const results = await db.delete(req.params.id)
+        const results = await db.delete(req.params.artistId, req.params.songId)
         res.json(results)
     } catch (error) {
         console.log(error)
@@ -43,13 +43,13 @@ router.delete('/artists/songs/delete/:id', async (req, res) => {
     }
 })
 
-router.put('/artists/songs/:id', async (req, res) => {
-    if (!req.body.name || !req.body.duration || !req.body.artist) {
+router.put('/artists/:artistId/songs/:songId', async (req, res) => {
+    if (!req.body.name || !req.body.duration) {
         res.status(400).send('Please provide valid date to update the song')
     }
 
     try {
-        const results = await db.put(req.params.id, req.body)
+        const results = await db.put(req.params.artistId, req.params.songId, req.body)
         res.send(results)
     } catch (error) {
         console.log(error)

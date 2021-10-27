@@ -1,4 +1,6 @@
 const mysql = require('mysql')
+
+//Dabase info will be stored in a env file of course
 const pool = mysql.createPool({
     password: 'root',
     user: 'root',
@@ -9,9 +11,9 @@ const pool = mysql.createPool({
 
 let songsdb = {}
 
-songsdb.random = () => {
+songsdb.random = (artistId) => {
     return new Promise((resolve, reject) => {
-        pool.query('SELECT * FROM songs ORDER BY RAND() LIMIT 1', (err, results) => {
+        pool.query('SELECT * FROM songs WHERE artist_id = ? ORDER BY RAND() LIMIT 1', [artistId], (err, results) => {
             if (err) {
                 return reject(err)
             }
@@ -20,9 +22,9 @@ songsdb.random = () => {
     })
 }
 
-songsdb.one = (id) => {
+songsdb.one = (artistId, songId) => {
     return new Promise((resolve, reject) => {
-        pool.query('SELECT * FROM songs WHERE id = ?', [id], (err, results) => {
+        pool.query('SELECT * FROM songs WHERE artist_Id = ? AND id = ?', [artistId, songId], (err, results) => {
             if (err) {
                 return reject(err)
             }
@@ -31,20 +33,25 @@ songsdb.one = (id) => {
     })
 }
 
-songsdb.delete = (id) => {
+songsdb.delete = (artistId, songId) => {
     return new Promise((resolve, reject) => {
-        pool.query('DELETE FROM songs WHERE id = ?', [id], (err, results) => {
+        pool.query('DELETE FROM songs WHERE artist_Id = ? AND id = ?', [artistId, songId], (err, results) => {
             if (err) {
                 return reject(err)
             }
-            return resolve('Song deleted!')
+            if (results && results.affectedRows > 0) {
+                return resolve('Song deleted!')
+            } else {
+                return resolve('could not delete song')
+            }
         })
     })
 }
 
-songsdb.put = (id, data) => {
+songsdb.put = (artistId, songId, data) => {
     return new Promise((resolve, reject) => {
-        pool.query('UPDATE songs SET name = ?, duration = ?, artist = ? WHERE id = ?', [data.name, data.duration, data.artist, id], (err, results) => {
+        const sqlQuery = 'UPDATE songs SET name = ?, duration = ? WHERE artist_id = ? AND id = ?'
+        pool.query(sqlQuery, [data.name, data.duration, artistId, songId], (err, results) => {
             if (err) {
                 return reject(err)
             }
