@@ -12,4 +12,7 @@ node index.js
 ```
 
 **Populate the database with some dummy data before querying**
-Database connected details can be found in ./db/index.js
+
+Database connection details can be found in ./db/index.js
+
+A copy of database table screenshot is included in the repository
